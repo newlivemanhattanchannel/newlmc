@@ -1,5 +1,10 @@
 {
+  "name": "nlmc-site",
+  "version": "1.0.0",
+  "private": true,
   "dependencies": {
-    "@mux/mux-player": "^3.10.2"
+    "@mux/mux-player": "^3.10.2",
+    "express": "^5.2.1",
+    "puppeteer": "^24.34.0"
   }
 }

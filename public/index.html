@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Live Manhattan Channel</title>
+</head>
+
+<style>
+    html, body {
+        margin: 0px;
+        padding: 0px;
+        background-color: black;
+    }
+
+    #container{
+        width: 75%;
+        height: 90%;
+        padding: 0px;
+        margin-top: 2%;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: rgb(0, 0, 0);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 10px;
+        color: white;
+    }
+
+    #title {
+        text-decoration: underline;
+        transform: rotate(-0.1deg);
+        margin: 0;
+        padding: 0;
+    }
+
+    #phonenumber {
+        margin: 0;
+        padding: 0;
+    }
+
+    #clockphone {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 80px;
+    }
+
+    form, form * {
+        font-family: 'Times New Roman', Times, serif !important;
+        display: flex;
+        flex-direction: row;
+        margin-top: 40px;
+    }
+
+    #status {
+        margin-top: 10px;
+        font-size: 12px;
+
+    }
+</style>
+
+<body>
+    <div id="container">
+        <h1 id="title"><i>New Live Manhattan Channel</i></h1>
+
+        <div id="clockphone">
+            <p id="phonenumber">CALL &nbsp;&nbsp;6 4 6 - 3 6 0 - 4 6 7 9</p>
+            <p id="clock">12:00 PM</p>
+        </div>
+
+        <iframe
+          src="https://player.mux.com/B44QAStfyPsMjMPWbuBU8sCCterk5PBzcQBIBL01Imyc
+?accent-color=%23feffff
+&primary-color=%23feffff
+&secondary-color=%23000000
+&controls=false"
+          style="aspect-ratio: 4/3; width: 50%; min-width: 350px; border: none;"
+          allow="autoplay; fullscreen"
+          allowfullscreen>
+        </iframe>
+
+        <!-- NO redirect form -->
+        <form id="printForm">
+            <textarea name="message" rows="1" cols="40" maxlength="200" required></textarea>
+            <button type="submit">Print</button>
+        </form>
+
+        <div id="status"></div>
+    </div>
+
+<script>
+/* Clock */
+function updateNYCClock() {
+    const now = new Date();
+    const options = {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZone: 'America/New_York'
+    };
+    document.getElementById('clock').textContent =
+        now.toLocaleTimeString('en-US', options);
+}
+setInterval(updateNYCClock, 1000);
+updateNYCClock();
+
+/* Print handler (no reload) */
+const form = document.getElementById("printForm");
+const status = document.getElementById("status");
+
+let statusTimeout;
+form.addEventListener("submit", async (e) => {
+    e.preventDefault(); // stop page reload
+
+    const message = form.message.value.trim();
+    if (!message) return;
+
+    status.textContent = "Printing…";
+    clearTimeout(statusTimeout);
+    statusTimeout = setTimeout(() => {
+        status.textContent = "";
+    }, 1000);
+
+    try {
+        const res = await fetch("/print", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+
+        if (data.ok) {
+            status.textContent = "printing";
+            form.reset();
+        } else {
+            status.textContent = data.error || "Error";
+        }
+    } catch (err) {
+        status.textContent = "Server error";
+    }
+    clearTimeout(statusTimeout);
+    statusTimeout = setTimeout(() => {
+        status.textContent = "";
+    }, 2000);
+});
+</script>
+
+</body>
+</html>
